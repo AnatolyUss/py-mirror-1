@@ -1,0 +1,26 @@
+# Create local environment:
+# {/usr/local/bin/}docker compose -f {/path/to}/py-mirror-1/docker-compose.yml -p core-api up -d
+version: '3.8'
+services:
+  redis:
+    image: redis:7.4.0
+    container_name: redis-container
+    restart: unless-stopped
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+
+  postgres:
+    image: postgres:16.4
+    container_name: postgres-container
+    restart: unless-stopped
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    environment:
+      - POSTGRES_USER=${POSTGRES_USERNAME}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DATABASE_NAME}
+    volumes:
+      - postgres_16_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_16_data:
