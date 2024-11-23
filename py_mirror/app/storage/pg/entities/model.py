@@ -1,6 +1,5 @@
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import (
-    MetaData,
     Table,
     Column,
     Identity,
@@ -10,9 +9,7 @@ from sqlalchemy import (
 )
 
 from py_mirror.app.types import HttpMethod
-
-
-metadata = MetaData()
+from py_mirror.app.storage.pg.data_source import metadata
 
 
 modelTable = Table(
