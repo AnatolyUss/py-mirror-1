@@ -1,5 +1,7 @@
 # py-mirror-1
-For learning purposes only...
+<b>For learning purposes only...</b>
+
+Install GNU Make: <code>brew install make</code>
 
 Run prior using <code>pyenv</code>: <code>source ~/.bash_profile</code>
 

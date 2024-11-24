@@ -1,53 +1,75 @@
 import os
+from typing import Any
 
 from dotenv import dotenv_values
 from sqlalchemy.pool import AsyncAdaptedQueuePool
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 from sqlalchemy.orm import declarative_base
 
-from sqlalchemy import (
-    Column,
-    Index,
-    Identity,
-    BigInteger,
-    String,
-    Enum as PgEnum,
-    MetaData,
-)
-
-from py_mirror.app.types import HttpMethod
-
-env = {**dotenv_values(".env"), **os.environ}
-
-user = env.get("POSTGRES_USERNAME")
-password = env.get("POSTGRES_PASSWORD")
-dbname = env.get("POSTGRES_DATABASE_NAME")
-host = env.get("POSTGRES_HOST")
-port = env.get("POSTGRES_PORT")
-schema = env.get("POSTGRES_SCHEMA")
-
-metadata = MetaData(schema="public")
-Base = declarative_base(metadata=metadata)
-pg_url = f"postgresql+asyncpg://{user}:{password}@/{dbname}?host={host}:{port}"
-async_engine = create_async_engine(pg_url, poolclass=AsyncAdaptedQueuePool)
+from sqlalchemy import MetaData
 
 
-class Model(Base):  # type: ignore
-    __tablename__ = "models"
+class DataSource:
+    _instance: "DataSource" = None  # type: ignore
 
-    id = Column(BigInteger, Identity(start=1), primary_key=True, nullable=False)
-    path = Column(String(255), nullable=False)
-    method = Column(PgEnum(HttpMethod), nullable=False)  # type: ignore
-    body = Column(JSONB, nullable=False)
-    headers = Column(JSONB, nullable=False)
-    query_params = Column(JSONB, nullable=False)
-    groups_to_names_units_map = Column(JSONB, nullable=False)
-    groups_to_required_fields_map = Column(JSONB, nullable=False)
+    def __new__(cls) -> "DataSource":
+        if not cls._instance:
+            cls._instance = super().__new__(cls)
 
-    __table_args__ = (Index("idx_models_path_method", "path", "method", unique=True),)
+        return cls._instance
 
+    def __init__(self) -> None:
+        self._env_vars: dict[str, str | Any] = (
+            {**dotenv_values(".env"), **os.environ}
+            if not hasattr(self, "_env_vars")
+            else self._env_vars
+        )
 
-async def init_db() -> None:
-    async with async_engine.begin() as connection:
-        await connection.run_sync(Base.metadata.create_all)
+        self.declarative_base: Any = (
+            self._get_declarative_base()
+            if not hasattr(self, "declarative_base")
+            else self.declarative_base
+        )
+
+        self.async_engine: AsyncEngine = (
+            self._get_async_engine()
+            if not hasattr(self, "async_engine")
+            else self.async_engine
+        )
+
+    def _get_declarative_base(self) -> Any:
+        schema = self._env_vars.get("POSTGRES_SCHEMA")
+        metadata = MetaData(schema=schema)
+        return declarative_base(metadata=metadata)
+
+    def _get_async_engine(self) -> AsyncEngine:
+        env = self._env_vars.get("ENV")
+        user = self._env_vars.get("POSTGRES_USERNAME")
+        password = self._env_vars.get("POSTGRES_PASSWORD")
+        dbname = self._env_vars.get("POSTGRES_DATABASE_NAME")
+        host = self._env_vars.get("POSTGRES_HOST")
+        port = self._env_vars.get("POSTGRES_PORT")
+        pg_url = f"postgresql+asyncpg://{user}:{password}@/{dbname}?host={host}:{port}"
+
+        return create_async_engine(
+            pg_url,
+            poolclass=AsyncAdaptedQueuePool,
+            # Maximum number of connections in the pool.
+            pool_size=10,
+            # Allow the pool to grow beyond the set size when necessary,
+            # without having to set a large pool size upfront.
+            max_overflow=10,
+            # Timeout when acquiring a connection.
+            pool_timeout=30,
+            # Recycle connections after 1 hour.
+            pool_recycle=3600,
+            # Enable SQL logging (for debugging purposes).
+            echo=(env == "DEV"),
+        )
+
+    async def init_db(self) -> None:
+        # !!!Note, the below "unused" import is presented due to essential side effect.
+        import py_mirror.app.storage.pg.models
+
+        async with self.async_engine.begin() as connection:
+            await connection.run_sync(self.declarative_base.metadata.create_all)

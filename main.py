@@ -4,7 +4,7 @@ import asyncio
 
 from dotenv import dotenv_values
 
-from py_mirror.app.storage.pg.data_source import init_db
+from py_mirror.app.storage.pg.data_source import DataSource
 
 cwd = os.getcwd()
 sys.path.append(cwd)
@@ -12,8 +12,8 @@ env = {**dotenv_values(".env"), **os.environ}
 mode = sys.argv[1]
 
 if mode == "--init-db":
-    asyncio.run(init_db())
-elif mode == "--init-api":
+    asyncio.run(DataSource().init_db())
+elif mode == "--run-api":
     pass
 else:
     sys.exit(f"Invalid mode {mode}")  # Exit status is "1", meaning failure.

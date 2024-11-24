@@ -1,5 +1,5 @@
 # Create local environment:
-# {/usr/local/bin/}docker compose -f {/path/to}/py-mirror-1/docker-compose.yml -p core-api up -d
+# {/usr/local/bin/}docker compose -f {/path/to}/py-mirror-1/docker-compose.yml -p py-mirror-1 up -d
 version: '3.8'
 services:
   redis:
