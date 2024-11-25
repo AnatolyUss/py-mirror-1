@@ -49,20 +49,24 @@ class DataSource:
         dbname = self._env_vars.get("POSTGRES_DATABASE_NAME")
         host = self._env_vars.get("POSTGRES_HOST")
         port = self._env_vars.get("POSTGRES_PORT")
+        pool_size = int(str(self._env_vars.get("SQLALCHEMY_POOL_SIZE")))
+        max_overflow = int(str(self._env_vars.get("SQLALCHEMY_MAX_OVERFLOW")))
+        pool_timeout = int(str(self._env_vars.get("SQLALCHEMY_POOL_TIMEOUT")))
+        pool_recycle = int(str(self._env_vars.get("SQLALCHEMY_POOL_RECYCLE")))
         pg_url = f"postgresql+asyncpg://{user}:{password}@/{dbname}?host={host}:{port}"
 
         return create_async_engine(
             pg_url,
             poolclass=AsyncAdaptedQueuePool,
             # Maximum number of connections in the pool.
-            pool_size=10,
+            pool_size=pool_size,
             # Allow the pool to grow beyond the set size when necessary,
             # without having to set a large pool size upfront.
-            max_overflow=10,
+            max_overflow=max_overflow,
             # Timeout when acquiring a connection.
-            pool_timeout=30,
+            pool_timeout=pool_timeout,
             # Recycle connections after 1 hour.
-            pool_recycle=3600,
+            pool_recycle=pool_recycle,
             # Enable SQL logging (for debugging purposes).
             echo=(env == "DEV"),
         )

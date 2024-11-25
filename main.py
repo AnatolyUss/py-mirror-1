@@ -2,13 +2,10 @@ import os
 import sys
 import asyncio
 
-from dotenv import dotenv_values
-
 from py_mirror.app.storage.pg.data_source import DataSource
 
 cwd = os.getcwd()
 sys.path.append(cwd)
-env = {**dotenv_values(".env"), **os.environ}
 mode = sys.argv[1]
 
 if mode == "--init-db":
