@@ -2,28 +2,22 @@ import os
 import sys
 import asyncio
 
-from py_mirror.app.storage.pg.data_source import DataSource
+import uvicorn
 
 cwd = os.getcwd()
 sys.path.append(cwd)
 mode = sys.argv[1]
 
 if mode == "--init-db":
+    from py_mirror.app.storage.pg.data_source import DataSource
+
     asyncio.run(DataSource().init_db())
 elif mode == "--run-api":
-    pass
+    from dotenv import dotenv_values
+    from py_mirror.app.api.main import get_api
+
+    env_vars = {**dotenv_values(".env"), **os.environ}
+    api = get_api()
+    uvicorn.run(api, host="localhost", port=int(str(env_vars.get("HTTP_PORT"))))
 else:
     sys.exit(f"Invalid mode {mode}")  # Exit status is "1", meaning failure.
-
-# from fastapi import FastAPI
-# app = FastAPI()
-
-
-# @app.post("/request")
-# def read_root():
-#     return {"Hello": "World"}
-#
-#
-# @app.get("/model")
-# def read_item():
-#     pass

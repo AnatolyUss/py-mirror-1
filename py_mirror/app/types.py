@@ -56,10 +56,10 @@ AbnormalFields = dict[AbnormalFieldName, list[AbnormalityReason]]
 
 
 class ValidationResponseDto(BaseModel):
-    isAbnormal: bool = Field(
+    is_abnormal: bool = Field(
         default=False, description="Indicates if the field is abnormal"
     )
-    abnormalFields: AbnormalFields = Field(default={}, description="Abnormal fields")
+    abnormal_fields: AbnormalFields = Field(default={}, description="Abnormal fields")
 
 
 class ResponseDto(BaseModel):
@@ -77,6 +77,13 @@ class RequestModelDtoBase(BaseModel):
     query_params: list[ValidationUnitTemplateDto]
     headers: list[ValidationUnitTemplateDto]
     body: list[ValidationUnitTemplateDto]
+
+    def __getitem__(self, key: str) -> Any:
+        return self.model_dump()[key]
+
+    def keys(self) -> list[str]:
+        """Enable 'class as mapping' functionality."""
+        return ["path", "method", "query_params", "body", "headers"]
 
 
 class RequestDto(RequestModelDtoBase):

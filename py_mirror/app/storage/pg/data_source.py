@@ -2,9 +2,14 @@ import os
 from typing import Any
 
 from dotenv import dotenv_values
-from sqlalchemy.pool import AsyncAdaptedQueuePool
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 from sqlalchemy.orm import declarative_base
+from sqlalchemy.pool import AsyncAdaptedQueuePool
+from sqlalchemy.ext.asyncio import (
+    create_async_engine,
+    async_sessionmaker,
+    AsyncEngine,
+    AsyncSession,
+)
 
 from sqlalchemy import MetaData
 
@@ -35,6 +40,12 @@ class DataSource:
             self._get_async_engine()
             if not hasattr(self, "async_engine")
             else self.async_engine
+        )
+
+        self.async_session: async_sessionmaker[AsyncSession] = (
+            async_sessionmaker(self.async_engine, expire_on_commit=False)
+            if not hasattr(self, "async_session_local")
+            else self.async_session
         )
 
     def _get_declarative_base(self) -> Any:

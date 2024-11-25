@@ -17,7 +17,7 @@ from py_mirror.app.storage.pg.data_source import DataSource
 Base = DataSource().declarative_base
 
 
-class Model(Base):  # type: ignore
+class ModelEntity(Base):  # type: ignore
     __tablename__ = "models"
 
     id = Column(BigInteger, Identity(start=1), primary_key=True, nullable=False)

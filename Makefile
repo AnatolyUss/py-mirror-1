@@ -35,6 +35,7 @@ lf:
 ftc:
 	make format
 	make type-check
+
 lftc:
 	make lint
 	make format
