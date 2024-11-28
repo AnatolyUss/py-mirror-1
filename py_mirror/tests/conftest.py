@@ -1,6 +1,19 @@
 from typing import Any
 
+from fastapi import FastAPI
 import pytest
+
+from py_mirror.app.api.main import get_api
+
+
+# @pytest.fixture
+# def anyio_backend() -> str:
+#     return "anyio"
+
+
+@pytest.fixture(scope="function", autouse=False)
+def api() -> FastAPI:
+    return get_api()
 
 
 @pytest.fixture(scope="function", autouse=False)

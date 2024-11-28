@@ -67,6 +67,12 @@ class ResponseDto(BaseModel):
     error: Any | None
 
 
+class ReadinessResponseDto(BaseModel):
+    pg: str | None
+    redis: str | None
+    error: Any | None
+
+
 class RequestModelDtoBase(BaseModel):
     path: str = Field(
         min_length=1,
