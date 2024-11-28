@@ -1,6 +1,23 @@
+import asyncio
 from typing import Any
 
+from fastapi import FastAPI
 import pytest
+import pytest_asyncio
+
+from py_mirror.app.api.main import get_api
+
+
+# @pytest.fixture(scope="session")
+@pytest_asyncio.fixture(scope="session")
+async def event_loop_policy() -> asyncio.unix_events._UnixDefaultEventLoopPolicy:
+    return asyncio.DefaultEventLoopPolicy()
+
+
+# @pytest.fixture(scope="session", autouse=False)
+@pytest_asyncio.fixture(scope="session", autouse=False)
+async def api() -> FastAPI:
+    return get_api()
 
 
 @pytest.fixture(scope="function", autouse=False)

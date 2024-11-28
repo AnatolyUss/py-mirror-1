@@ -31,6 +31,7 @@ class DataSource:
         db = self._env_vars.get("REDIS_DB")
         pool_size = int(str(self._env_vars.get("REDIS_POOL_SIZE")))
         redis_url = f"redis://{host}:{port}/{db}"
+
         pool = redis.ConnectionPool.from_url(
             redis_url,
             max_connections=pool_size,
@@ -42,3 +43,7 @@ class DataSource:
 
     async def disconnect(self) -> None:
         await self.client.aclose(close_connection_pool=True)
+
+    async def ping(self) -> str:
+        result = await self.client.ping()
+        return str(result)
