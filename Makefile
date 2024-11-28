@@ -16,7 +16,7 @@ install:
 	$(PIP) freeze >> requirements.txt
 
 test:
-	$(VENV_DIR)/bin/pytest $(TESTS)
+	$(VENV_DIR)/bin/pytest -vv $(TESTS)
 
 lint:
 	$(LINTER) check

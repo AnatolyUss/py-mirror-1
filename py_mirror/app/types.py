@@ -57,13 +57,19 @@ AbnormalFields = dict[AbnormalFieldName, list[AbnormalityReason]]
 
 class ValidationResponseDto(BaseModel):
     is_abnormal: bool = Field(
-        default=False, description="Indicates if the field is abnormal"
+        default=False, description="Indicates if given field is abnormal"
     )
     abnormal_fields: AbnormalFields = Field(default={}, description="Abnormal fields")
 
 
 class ResponseDto(BaseModel):
     data: Any | None
+    error: Any | None
+
+
+class ReadinessResponseDto(BaseModel):
+    pg: str | None
+    redis: str | None
     error: Any | None
 
 

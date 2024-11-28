@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
-from py_mirror.app.api.api_routes import api_router
-from py_mirror.app.api.healthcheck_routes import healthcheck_router
+from py_mirror.app.api.api_endpoints import api_router
+from py_mirror.app.api.healthcheck_endpoints import healthcheck_router
 
 
 def get_api() -> FastAPI:
